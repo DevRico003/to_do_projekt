@@ -90,7 +90,7 @@ app.post("/login", async (req, res) => {
 
 // Neues Todo hinzufügen
 app.post('/addtodo', async (req, res) => {
-    const { name, title, description, dueDate } = req.body
+    const { name, title, description, dueDate, category } = req.body
 
     const data = await readData()
 
@@ -102,10 +102,19 @@ app.post('/addtodo', async (req, res) => {
         title,
         description: description || "",
         dueDate: dueDate || "",
-        status: "Offen"  // Todos werden standardmäßig als "Offen" erstellt
+        category: category || "Allgemein", // Default auf "Allgemein" setzen
+        status: "Offen"
     }
 
     data.userTodoLists[name].push(newTodo)
+
+    // Sortiere die Todos nach Fälligkeit
+    data.userTodoLists[name].sort((a, b) => {
+        if (a.dueDate < b.dueDate) return -1
+        if (a.dueDate > b.dueDate) return 1
+        return 0
+    })
+
     await writeData(data)
     renderTodoList(res, name, data)
 })
@@ -141,8 +150,9 @@ app.post('/searchtodo', async (req, res) => {
 function renderTodoList(res, name, data) {
     const todoListHtml = data.userTodoLists[name].map((item, index) => `
         <li>
-            <strong>${item.title}</strong>
+            <strong>${item.title}</strong> - Kategorie: ${item.category}
             ${item.description ? `<br>${item.description}` : ""}
+            ${item.dueDate ? `<br>Fällig am: ${item.dueDate}` : ""}
             <br>Status: ${item.status}
             <form method="post" action="/togglestatus">
                 <input type="hidden" name="name" value="${name}">
@@ -162,6 +172,8 @@ function renderTodoList(res, name, data) {
             <input name="description" type="text" placeholder="Beschreibung (optional)">
             <label for="dueDate">Fälligkeitsdatum:</label>
             <input name="dueDate" type="date">
+            <label for="category">Kategorie:</label>
+            <input name="category" type="text" placeholder="Kategorie (optional)">
             <label for="status">Status:</label>
             <select name="status">
                 <option value="Offen">Offen</option>
