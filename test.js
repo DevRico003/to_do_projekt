@@ -90,7 +90,7 @@ app.post("/login", async (req, res) => {
 
 // Neues Todo hinzufügen
 app.post('/addtodo', async (req, res) => {
-    const { name, title, description, dueDate, category } = req.body
+    const { name, title, description, dueDate } = req.body
 
     const data = await readData()
 
@@ -102,8 +102,7 @@ app.post('/addtodo', async (req, res) => {
         title,
         description: description || "",
         dueDate: dueDate || "",
-        category: category || "Allgemein", // Default-Kategorie
-        status: "Offen"
+        status: "Offen"  // Todos werden standardmäßig als "Offen" erstellt
     }
 
     data.userTodoLists[name].push(newTodo)
@@ -131,56 +130,12 @@ app.get("/todolist", async (req, res) => {
     renderTodoList(res, name, data)
 })
 
-// Suchroute für Todos
-app.get("/searchtodos", async (req, res) => {
-    const { name, query, type } = req.query
+app.post('/searchtodo', async (req, res) => {
+    const { name, query } = req.body
     const data = await readData()
-    let filteredTodos = []
-
-    if (data.userTodoLists[name]) {
-        switch(type) {
-            case 'title':
-                filteredTodos = data.userTodoLists[name].filter(todo => todo.title.includes(query))
-                break
-            case 'description':
-                filteredTodos = data.userTodoLists[name].filter(todo => todo.description.includes(query))
-                break
-            case 'dueDate':
-                filteredTodos = data.userTodoLists[name].filter(todo => todo.dueDate === query)
-                break
-            case 'category':
-                filteredTodos = data.userTodoLists[name].filter(todo => todo.category.includes(query))
-                break
-            default:
-                res.send("Ungültiger Suchtyp.")
-                return
-        }
-    }
-    renderFilteredTodoList(res, name, filteredTodos)
+    const filteredTodos = data.userTodoLists[name].filter(todo => todo.title.includes(query))
+    renderTodoList(res, name, { ...data, userTodoLists: { [name]: filteredTodos } })
 })
-
-function renderFilteredTodoList(res, name, todos) {
-    const todoListHtml = todos.map((item, index) => `
-        <li>
-            <strong>${item.title}</strong>
-            ${item.description ? `<br>${item.description}` : ""}
-            <br>Kategorie: ${item.category}
-            <br>Status: ${item.status}
-            <form method="post" action="/togglestatus">
-                <input type="hidden" name="name" value="${name}">
-                <input type="hidden" name="index" value="${index}">
-                <button type="submit">Status ändern</button>
-            </form>
-        </li>
-    `).join("")
-
-    const userTodoList = `
-        <h2>Suchergebnisse für ${name}</h2>
-        <ul>${todoListHtml}</ul>
-    `
-
-    res.send(userTodoList)
-}
 
 // Funktion zum Rendern der To-Do-Liste
 function renderTodoList(res, name, data) {
