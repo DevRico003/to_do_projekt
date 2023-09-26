@@ -30,18 +30,95 @@ async function writeData(data) {
 // Hauptlogin-Seite
 app.get('/', (req, res) => {
     const form = `
-        <h1>To Do App Enrico Anna Christoph</h1>
-        <form method="post" action="/login">
-            <label for="name">Name:</label>
-            <input name="name" type="text">
-            <label for="pw">Passwort:</label>
-            <input name="pw" type="password">
-            <button type="submit">Login</button>
-        </form>
-        <br>
-        <form method="get" action="/register">
-            <button type="submit">Zur Registrierung</button>
-        </form>
+    <style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 50%;
+        margin: auto;
+    }
+    header {
+        background: #50b3a2;
+        color: #ffffff;
+        padding-top: 30px;
+        min-height: 70px;
+        border-bottom: #bbb 1px solid;
+    }
+    header a {
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 16px;
+    }
+    header ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        overflow: hidden;
+    }
+    header li {
+        float: left;
+        display: block;
+        padding: 0 20px;
+        font-size: 16px;
+    }
+    header #branding {
+        float: left;
+    }
+    header #branding h1 {
+        margin: 0;
+    }
+    header nav {
+        float: right;
+        margin-top: 10px;
+    }
+    header .highlight, header .current a {
+        color: #e8491d;
+        font-weight: bold;
+    }
+    header a:hover {
+        color: #ffffff;
+        font-weight: bold;
+    }
+    #task-input {
+        margin-bottom: 20px;
+    }
+    ul {
+        padding: 0;
+    }
+    li {
+        list-style: none;
+        background: #fff;
+        margin-bottom: 5px;
+        padding: 10px;
+        cursor: pointer;
+    }
+    li.done {
+        text-decoration: line-through;
+        color: #888;
+    }
+</style>
+
+    <div class="container">
+    <header>
+        <h1 id="branding">To Do App Enrico Anna Christoph</h1>
+    </header>
+    <form method="post" action="/login" id="task-input">
+        <label for="name">Name:</label>
+        <input name="name" type="text">
+        <label for="pw">Passwort:</label>
+        <input name="pw" type="password">
+        <button type="submit">Login</button>
+    </form>
+    <br>
+    <form method="get" action="/register">
+        <button type="submit">Zur Registrierung</button>
+    </form>
+</div>
     `
     res.send(form)
 })
