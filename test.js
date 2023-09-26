@@ -140,11 +140,19 @@ app.get("/todolist", async (req, res) => {
 })
 
 app.post('/searchtodo', async (req, res) => {
-    const { name, query } = req.body
-    const data = await readData()
-    const filteredTodos = data.userTodoLists[name].filter(todo => todo.title.includes(query))
-    renderTodoList(res, name, { ...data, userTodoLists: { [name]: filteredTodos } })
-})
+    const { name, query } = req.body;
+    const data = await readData();
+
+    const filteredTodos = data.userTodoLists[name].filter(todo => {
+        return todo.title.includes(query) ||
+               (todo.description && todo.description.includes(query)) ||
+               (todo.category && todo.category.includes(query)) || // vorausgesetzt, Ihre Todo-Objekte haben ein "category" Feld
+               (todo.dueDate && todo.dueDate.includes(query));
+    });
+
+    renderTodoList(res, name, { ...data, userTodoLists: { [name]: filteredTodos } });
+});
+
 
 // Funktion zum Rendern der To-Do-Liste
 function renderTodoList(res, name, data) {
